@@ -20,8 +20,10 @@
  */
 
 int main(int argc, char * argv[]) {
-    int nthreads = 4;
+    int nthreads = sysconf( _SC_NPROCESSORS_ONLN );
+;
     if (argc >= 2) nthreads = (atoi(argv[1]));
+    printf("%d cores!\n", nthreads);
 #pragma omp parallel num_threads(nthreads)
     {
         int tid = omp_get_thread_num();
@@ -39,12 +41,13 @@ int main(int argc, char * argv[]) {
 
     omp_set_wait_policy(OMP_PASSIVE_WAIT);
 
-    if (omp_get_wait_policy() == OMP_PASSIVE_WAIT) {
+    if (omp_get_wait_policy() != OMP_PASSIVE_WAIT) {
         printf("WAIT policy is not correctly set\n");
     }
 
 #pragma omp parallel num_threads(nthreads)
     {
+    #pragma omp master
         omp_set_wait_policy(OMP_PASSIVE_WAIT); /* This is not the "recommended" way to use */
         int tid = omp_get_thread_num();
     }
