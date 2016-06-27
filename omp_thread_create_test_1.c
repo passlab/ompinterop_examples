@@ -50,7 +50,7 @@ int main(int argc, char * argv[])
     omp_thread_t ompthread_0;
     int arg;
     arg=0;
-    omp_thread_create(&ompthread_0, test_fun, (void*)(&arg), NULL);
+    omp_thread_create(&ompthread_0, 0, test_fun, (void*)(&arg), NULL);
 
     omp_thread_join(&ompthread_0, (void**)(&ret_value));
     printf("omp_thread 0 return: %d\n", *ret_value);
@@ -59,13 +59,13 @@ int main(int argc, char * argv[])
     omp_thread_t ompthread_1;
     void * stack = malloc(4098);
     arg=1;
-    omp_thread_create(&ompthread_1, test_fun, (void*)(&arg), stack);
+    omp_thread_create(&ompthread_1, 0, test_fun, (void*)(&arg), stack);
     omp_thread_join(&ompthread_1, (void**)(&ret_value));
     printf("omp_thread 1 return: %d\n", *ret_value);
 
     omp_thread_t ompthread_2;
     arg=2;
-    omp_thread_create(&ompthread_2, test_fun, (void*)(&arg), stack);
+    omp_thread_create(&ompthread_2, 0, test_fun, (void*)(&arg), stack);
     omp_thread_join(&ompthread_2, (void**)(&ret_value));
     printf("omp_thread 2 return: %d\n", *ret_value);
 

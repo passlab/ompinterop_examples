@@ -27,7 +27,7 @@ int main(int argc, char * argv[]) {
         int tid = omp_get_thread_num();
     }
 
-    if (omp_quiesce() == 0) {
+    if (omp_quiesce(omp_thread_state_KILL) == 0) {
         printf("omp_quiesce() return successfully\n");
     };
 

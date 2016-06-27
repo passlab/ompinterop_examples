@@ -1,7 +1,8 @@
 LIBIOMP_BUILD=../../intel-openmp-runtime-build
+LLVM_INSTALL=../llvm-install
 
-LIBIOMP_PATH = ${LIBIOMP_BUILD}/src
-LIBIOMP_INCLUDE = ${LIBIOMP_BUILD}/src
+LIBIOMP_PATH = ${LLVM_INSTALL}/lib
+LIBIOMP_INCLUDE = ${LLVM_INSTALL}/lib/clang/3.9.0/include
 
 EXE = omp_set_wait_policy_test_1 omp_quiesce_test_1 omp_thread_create_test_1
 
