@@ -1,7 +1,7 @@
 #!/bin/bash
 PID=`ps -o pid= -p $1`
 
-if [ "${PID}" != "$1" ]
+if [ ! "${PID}" ]
 then
    echo "process $1 does not exist!"
    exit

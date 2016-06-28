@@ -21,7 +21,7 @@
 
 int main(int argc, char * argv[]) {
     int nthreads = sysconf( _SC_NPROCESSORS_ONLN );
-;
+
     if (argc >= 2) nthreads = (atoi(argv[1]));
     printf("%d cores!\n", nthreads);
 #pragma omp parallel num_threads(nthreads)
@@ -29,22 +29,29 @@ int main(int argc, char * argv[]) {
         int tid = omp_get_thread_num();
     }
 
+    int a;
+    printf("Please input an integer value to change to active wait: ");
+    scanf("%d", &a);
     omp_set_wait_policy(OMP_ACTIVE_WAIT);
-
+    
     if (omp_get_wait_policy() != OMP_ACTIVE_WAIT) {
         printf("WAIT policy is not correctly set\n");
     }
+
 #pragma omp parallel num_threads(nthreads)
     {
         int tid = omp_get_thread_num();
     }
 
+    printf("Please input an integer value to change to passive wait: ");
+    scanf("%d", &a);
     omp_set_wait_policy(OMP_PASSIVE_WAIT);
 
     if (omp_get_wait_policy() != OMP_PASSIVE_WAIT) {
         printf("WAIT policy is not correctly set\n");
     }
 
+    while(1);
 #pragma omp parallel num_threads(nthreads)
     {
     #pragma omp master
