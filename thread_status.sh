@@ -12,10 +12,12 @@ pwd=$PWD
 proc_dir=/proc/$1/task
 
 cd ${proc_dir}
-
+seq=0
 for th in `find . -maxdepth 1  -type d \( ! -name . \)`
 do
-   echo ${th}: `cat ${th}/status  | grep State`
+   echo ${seq} ${th}: `cat ${th}/status  | grep State`
+
+   ((seq++))
 done
 
 cd ${pwd}

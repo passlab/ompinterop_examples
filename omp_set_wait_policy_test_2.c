@@ -39,11 +39,6 @@ int main(int argc, char * argv[]) {
         printf("WAIT policy is not correctly set\n");
     }
 
-#pragma omp parallel num_threads(nthreads)
-    {
-        int tid = omp_get_thread_num();
-    }
-
     printf("Please input an integer value to change to PASSIVE wait: ");
     scanf("%d", &a);
     omp_set_wait_policy(OMP_PASSIVE_WAIT);

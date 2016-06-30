@@ -19,6 +19,16 @@
  * Use -O0 optimization
  */
 
+void print_num_threads( ) {
+    sleep(1);
+    int total_runtime_threads = omp_get_global_num_threads(); 
+    int total_spin_threads = omp_get_num_threads_runtime(omp_thread_state_SPIN);
+    int total_yield_threads = omp_get_num_threads_runtime(omp_thread_state_YIELD);
+    int total_sleep_threads = omp_get_num_threads_runtime(omp_thread_state_SLEEP);
+
+    printf("Total threads %d (SPIN: %d, YIELD: %d, SLEEP: %d)\n", total_runtime_threads, total_spin_threads, total_yield_threads, total_sleep_threads);
+}
+
 int main(int argc, char * argv[]) {
     int nthreads = sysconf( _SC_NPROCESSORS_ONLN );
 
@@ -28,12 +38,16 @@ int main(int argc, char * argv[]) {
     {
         int tid = omp_get_thread_num();
     }
+
+    print_num_threads();
     omp_set_wait_policy(OMP_PASSIVE_WAIT);
+    print_num_threads();
 
     int a;
     printf("Please input an integer value to change to ACTIVE wait: ");
     scanf("%d", &a);
     omp_set_wait_policy(OMP_ACTIVE_WAIT);
+    print_num_threads();
     
     if (omp_get_wait_policy() != OMP_ACTIVE_WAIT) {
         printf("WAIT policy is not correctly set\n");
@@ -47,6 +61,7 @@ int main(int argc, char * argv[]) {
     printf("Please input an integer value to change to PASSIVE wait: ");
     scanf("%d", &a);
     omp_set_wait_policy(OMP_PASSIVE_WAIT);
+    print_num_threads();
 
     if (omp_get_wait_policy() != OMP_PASSIVE_WAIT) {
         printf("WAIT policy is not correctly set\n");
@@ -59,6 +74,7 @@ int main(int argc, char * argv[]) {
         omp_set_wait_policy(OMP_PASSIVE_WAIT); /* This is not the "recommended" way to use */
         int tid = omp_get_thread_num();
     }
+    print_num_threads();
     return 0;
 }
 
