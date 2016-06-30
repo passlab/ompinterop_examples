@@ -5,10 +5,9 @@
 #include <pthread.h>
 #include <signal.h>
 #include <omp.h>
-//#include <omp_interop.h>
 #include <sys/timeb.h>
 #include <unistd.h>
-void *omp_parallel_foo(void *ptr);
+#include "omp_interop.h"
 
 /**Important: make sure you use num_threads clause in parallel direction and set it to the 
  * number of hardware cores, not the number of cores Linux gives or the default from OpenMP
@@ -21,58 +20,60 @@ void *omp_parallel_foo(void *ptr);
  * Use -O0 optimization
  */
 
- double read_timer() {
+ double read_timer_ms() {
     struct timeb tm;
     ftime(&tm);
-    return (double) tm.time + (double) tm.millitm / 1000.0;
-}
-void omp_quiesce_overhead(int nthreads);
-
-int main(int argc, char * argv[]) {
-	int thr_num = 4;
-	if (argc >= 2) thr_num = (atoi(argv[1]));
-    omp_quiesce_overhead(thr_num);
-
-    exit(0);
+    return (double) tm.time * 1000.0 + (double) tm.millitm;
 }
 
+int dummy = 0;
 /**
  * TODO: how to make sure that an empty parallel do not get optimized out by the compiler
  */
-void omp_quiesce_overhead(int nthreads) {
+int main(int argc, char * argv[]) {
+	int nthreads = 4;
+    int policy = omp_thread_state_PASSIVE;
+    printf("Usage: a.out [<nthreads>] [policy: 1: SPIN(ACTIVE), 2: YIELD, 3: SLEEP(PASSIVE), 4: KILL], default %d threads, PASSIVE policy\n", nthreads);
+	if (argc >= 2) nthreads = (atoi(argv[1]));
+    if (argc >= 3) {
+        policy = atoi(argv[2]);
+        if (policy == 1) policy = omp_thread_state_SPIN;
+        if (policy == 2) policy = omp_thread_state_YIELD;
+        if (policy == 3) policy = omp_thread_state_SLEEP;
+        if (policy == 4) policy = omp_thread_state_KILL;
+    }
+
     int i;
     int NUM_ITERATIONS = 1000;
-    double quiesce_ov = 0.0;
-    double quiesce_start_ov = 0.0;
-    
-    double cost_all = read_timer();
+    double overhead = 0.0;
+
+    double overhead_parallel = read_timer_ms();
     for (i=0; i<NUM_ITERATIONS; i++) {
-        //double temp = read_timer();
 		#pragma omp parallel num_threads(nthreads)
 		{
 			//int tid = omp_get_thread_num();
 		}
 		
-		double temp2  = read_timer();
-		omp_quiesce();
-		quiesce_ov += read_timer() - temp2;
-        //quiesce_start_ov += read_timer() - temp;
+		double temp2  = read_timer_ms();
+		omp_quiesce(policy);
+		overhead += read_timer_ms() - temp2;
     }
-    cost_all = read_timer() - cost_all;
+    overhead_parallel = read_timer_ms() - overhead_parallel;
 
+    omp_set_wait_policy(OMP_ACTIVE_WAIT);
  	// this is for not quiesce
-    double parallel_overhead = read_timer();
+    double parallel_overhead = read_timer_ms();
     for (i=0; i<NUM_ITERATIONS; i++) {
 		#pragma omp parallel num_threads(nthreads)
 		{
     		//int tid = omp_get_thread_num();
 		}
     }
-    parallel_overhead = read_timer() - parallel_overhead;
-    printf("quiesce overhead      : %f\n", quiesce_ov/NUM_ITERATIONS);
-    printf("quiesce_start overhead: %f\n", (cost_all - parallel_overhead)/NUM_ITERATIONS);
-    printf("Total cost:             %f\n", cost_all/NUM_ITERATIONS);
+    parallel_overhead = read_timer_ms() - parallel_overhead;
+    printf("%d thread, policy: %d\n", nthreads, policy);
+    printf("set_wait_policy/quiesce overhead      : %f\n", overhead/NUM_ITERATIONS);
+    printf("parallel startup overhead because of the policy: %f\n", (overhead_parallel - parallel_overhead - overhead)/NUM_ITERATIONS);
 
 	// while(1);
-     return;
+     return 0;
 }
