@@ -8,9 +8,14 @@
 #include <sys/timeb.h>
 #include <unistd.h>
 
-/**Important: make sure you use num_threads clause in parallel direction and set it to the 
- * number of hardware cores, not the number of cores Linux gives or the default from OpenMP
- * 
+/**
+ * This function measure the overhead of both set_wait_policy and quiesce since quiesce takes all the arguments
+ * required for set_wait_policy plus the KILL policy which shutdown the runtime
+ *
+ * Important: make sure you use omp_set_num_threads API before parallel to set the number of threads for
+ * execution. The use of num_threads clause is not safe due to the way compiler generate the code and the way how
+ * the runtime is initialized.
+ *
  * cat /proc/cpuinfo and check the processor id, core id and CPU model number so you can look up fron internet
  * Lennon is Xeon CPU E5-2683 v3 @ 2.00GHz, it has two CPU for total 28 cores, but support upto 56 threads
  * Paul is Xeon CPU E5-2695 v2 @ 2.40GHz, it has two CPU for total 24 cores, support upto 48 threads
@@ -49,7 +54,7 @@ int main(int argc, char * argv[]) {
     int dummy[nthreads][64];
     double cost_all = read_timer_ms();
     for (i=0; i<NUM_ITERATIONS; i++) {
-    		omp_set_num_threads(nthreads); /* this call init runtime */
+    	omp_set_num_threads(nthreads); /* this call init runtime */
 		#pragma omp parallel
 		{
 		//	int tid = omp_get_thread_num();
@@ -67,7 +72,7 @@ int main(int argc, char * argv[]) {
  	// this is for not quiesce
     double parallel_overhead = read_timer_ms();
     for (i=0; i<NUM_ITERATIONS; i++) {
-    		omp_set_num_threads(nthreads); /* this call init runtime */
+    	omp_set_num_threads(nthreads); /* this call init runtime */
 		#pragma omp parallel
 		{
 		//	int tid = omp_get_thread_num();
