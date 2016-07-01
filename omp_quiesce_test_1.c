@@ -27,14 +27,23 @@ int main(int argc, char * argv[]) {
         int tid = omp_get_thread_num();
     }
 
+    int a;
+    printf("Please input any integer to shutdown the OpenMP runtime.\n");
+    scanf("%d", &a);
     if (omp_quiesce(omp_thread_state_KILL) == 0) {
         printf("omp_quiesce() return successfully\n");
     };
+    usleep(1000);
 
-#pragma omp parallel num_threads(nthreads)
+    printf("Please input any integer to re-init the OpenMP runtime.\n");
+    scanf("%d", &a);
+    omp_set_num_threads(nthreads);
+#pragma omp parallel
     {
         int tid = omp_get_thread_num();
     }
+    printf("Please input any integer to terminate.\n");
+    scanf("%d", &a);
 
     return 0;
 }

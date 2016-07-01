@@ -4,7 +4,7 @@ LLVM_INSTALL=../llvm-install
 LIBIOMP_PATH = ${LLVM_INSTALL}/lib
 LIBIOMP_INCLUDE = ${LLVM_INSTALL}/lib/clang/3.9.0/include
 
-EXE = pthread_create_test_1 omphello omp_set_wait_policy_test_1 omp_set_wait_policy_test_2 omp_get_global__test_1 omp_quiesce_test_1 omp_thread_create_test_1
+EXE = pthread_create_test_1 omphello omp_set_wait_policy_test_1 omp_set_wait_policy_test_2 omp_get_global__test_1 omp_quiesce_test_1 omp_thread_create_test_1 omp_quiesce_overhead
 
 # Do the following export before run the program
 # export LD_LIBRARY_PATH=${LIBIOMP_PATH}:$LD_LIBRARY_PATH
