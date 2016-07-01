@@ -11,7 +11,7 @@ EXE = pthread_create_test_1 omphello omp_set_wait_policy_test_1 omp_set_wait_pol
 
 # For Clang/LLVM using interop implementation on Intel OpenMP runtime
 CC = clang
-CFLAGS = -g -fopenmp -I${LIBIOMP_INCLUDE} -L${LIBIOMP_PATH} -liomp5
+CFLAGS = -g -fopenmp -O0 -I${LIBIOMP_INCLUDE} -L${LIBIOMP_PATH} -liomp5
 
 # For icc using interop implementation on Intel OpenMP runtime
 # CC = icc

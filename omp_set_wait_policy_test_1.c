@@ -31,7 +31,7 @@ int main(int argc, char * argv[]) {
     omp_set_wait_policy(OMP_PASSIVE_WAIT);
 
     int a;
-    printf("Please input an integer value to change to ACTIVE wait: ");
+    printf("Please input an integer to change from PASSIVE(SLEEP) to ACTIVE(SPIN) wait\n");
     scanf("%d", &a);
     omp_set_wait_policy(OMP_ACTIVE_WAIT);
     
@@ -44,7 +44,7 @@ int main(int argc, char * argv[]) {
         int tid = omp_get_thread_num();
     }
 
-    printf("Please input an integer value to change to PASSIVE wait: ");
+    printf("Please input an integer to change from ACTIVE(SPIN) to PASSIVE(SLEEP) wait\n");
     scanf("%d", &a);
     omp_set_wait_policy(OMP_PASSIVE_WAIT);
 
@@ -52,13 +52,30 @@ int main(int argc, char * argv[]) {
         printf("WAIT policy is not correctly set\n");
     }
 
-    while(1);
+    printf("Please input an integer to change from PASSIVE(SLEEP) to YIELD-SPIN wait\n");
+    scanf("%d", &a);
+    omp_set_wait_policy(omp_thread_state_YIELD);
+
+    printf("Please input an integer to change from YIELD-SPIN to ACTIVE(SPIN) wait\n");
+    scanf("%d", &a);
+    omp_set_wait_policy(omp_thread_state_SPIN);
+
+    printf("Please input an integer to change from ACTIVE(SPIN) to YIELD-SPIN wait\n");
+    scanf("%d", &a);
+    omp_set_wait_policy(omp_thread_state_YIELD);
+    
+    printf("Please input an integer to change from YIELD-SPIN to PASSIVE(SLEEP) wait\n");
+    scanf("%d", &a);
+    omp_set_wait_policy(omp_thread_state_SLEEP);
+
 #pragma omp parallel num_threads(nthreads)
     {
     #pragma omp master
         omp_set_wait_policy(OMP_PASSIVE_WAIT); /* This is not the "recommended" way to use */
         int tid = omp_get_thread_num();
     }
+    printf("Please input an integer to terminate\n");
+    scanf("%d", &a);
     return 0;
 }
 
