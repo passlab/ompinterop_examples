@@ -18,7 +18,7 @@ EXE = pthread_create_test_1\
 
 # For Clang/LLVM using interop implementation on Intel OpenMP runtime
 CC = clang
-CFLAGS = -g -fopenmp -O0 -I${LIBIOMP_INCLUDE} -L${LIBIOMP_PATH} -liomp5
+CFLAGS = -g -fopenmp -O0 -I${LIBIOMP_INCLUDE} -L${LIBIOMP_PATH} -liomp5 -pthread
 
 # For icc using interop implementation on Intel OpenMP runtime
 # CC = icc

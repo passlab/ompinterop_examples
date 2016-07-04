@@ -24,12 +24,14 @@ void *omp_parallel_foo(void *ptr);
  *
  * Use -O0 optimization
  */
-void busy_waiting(int second) {
+/* 1s = 1,000 ms = 1,000,000 us */
+void busy_waiting(double usecond) {
     clock_t ticks1, ticks2;
 
     ticks1 = clock();
     ticks2 = ticks1;
-    while((ticks2/CLOCKS_PER_SEC-ticks1/CLOCKS_PER_SEC) < second)
+    int second = usecond/1000000.0;
+    while(((double)(ticks2-ticks1))/CLOCKS_PER_SEC < second)
         ticks2 = clock();
 
     // printf("It took %ld ticks to wait one second.\n",ticks2-ticks1);
@@ -61,10 +63,10 @@ int main(int argc, char * argv[])
     }
     printf("%d pthreads each creates %d OpenMP thread. Test policy: %d\n", num_pthreads, num_ompthreads, policy_input);
     pthread_t pthreads[num_pthreads];
-    ppthread_attr_t pthread_attr;
+    pthread_attr_t pthread_attr;
 
-    ppthread_attr_init( &pthread_attr );
-    ppthread_attr_setdetachstate( & pthread_attr, PTHREAD_CREATE_JOINABLE );
+    pthread_attr_init( &pthread_attr );
+    pthread_attr_setdetachstate( & pthread_attr, PTHREAD_CREATE_JOINABLE );
     pthread_attr_setscope(&pthread_attr, PTHREAD_SCOPE_SYSTEM);
     pthread_attr_setschedpolicy(&pthread_attr, SCHED_FIFO); /* or SCHED_RR */
     /*
@@ -86,16 +88,20 @@ int main(int argc, char * argv[])
         pthread_create(&pthreads[i], &pthread_attr, omp_parallel_foo, (void *) i);
     }
 
+    double elapsed = read_timer_ms();
     togo = 1; /* fire them at once */
 
     for (i=0; i<num_pthreads; i++) {
         pthread_join(pthreads[i], NULL);
     }
 
+    elapsed = read_timer_ms() - elapsed;
+    printf("Elapsed(ms): %f\n", elapsed);
+
     return 0;
 }
 
-#define NUM_ITERATIONS 10000
+#define NUM_ITERATIONS 1000
 void *omp_parallel_foo(void *ptr )
 {
     int user_thread_id = (int) ptr;
@@ -103,15 +109,15 @@ void *omp_parallel_foo(void *ptr )
     while (!togo);
     for (i=0; i<NUM_ITERATIONS; i++) {
         /* busy wait for one second */
-        busy_waiting(user_thred_id);
+        busy_waiting(user_thread_id*3000);
         omp_set_num_threads(num_ompthreads);
 #pragma omp parallel
         {
             /* busy waiting, the whole parallel region should takes 1s */
-            busy_waiting(1);
+            busy_waiting(3000);
         }
         omp_quiesce(policy); /* or active */
-        usleep(3000); /* usleep so the policy applied */
+    //    usleep(3000); /* usleep so the policy applied */
     }
     return NULL;
 }

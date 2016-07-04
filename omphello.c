@@ -9,6 +9,8 @@ int main(int argc, char * argv[]) {
 		printf("Hello from thread %d of %d\n", omp_get_thread_num(), omp_get_num_threads());
 	}
 
+        kmp_set_blocktime(100);
+
 	while(1);
 	return 0;
 }
