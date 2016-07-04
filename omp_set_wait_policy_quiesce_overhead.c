@@ -62,7 +62,8 @@ int main(int argc, char * argv[]) {
 		}
 		
 		double temp2  = read_timer_ms();
-		omp_quiesce(policy);
+		if (policy == omp_thread_state_KILL) omp_quiesce(policy);
+		else omp_set_wait_policy(policy);
 		overhead += read_timer_ms() - temp2;
 		usleep(3000);
     }

@@ -10,7 +10,7 @@ EXE = pthread_create_test_1\
     omp_get_global__test_1\
     omp_quiesce_test_1\
     omp_set_wait_policy_quiesce_overhead\
-    omp_set_wait_policy_quiesce_pthread\
+    omp_set_wait_policy_pthread\
 
 # Do the following export before run the program
 # export LD_LIBRARY_PATH=${LIBIOMP_PATH}:$LD_LIBRARY_PATH
