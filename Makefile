@@ -1,4 +1,3 @@
-LIBIOMP_BUILD=../../intel-openmp-runtime-build
 LLVM_INSTALL=../llvm-install
 
 LIBIOMP_PATH = ${LLVM_INSTALL}/lib
