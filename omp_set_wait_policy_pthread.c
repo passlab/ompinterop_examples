@@ -43,21 +43,23 @@ double read_timer_ms() {
 }
 
 int togo = 0;
-int policy = omp_thread_state_SLEEP;
+int policy = OMP_SUSPEND_WAIT;
 int num_ompthreads = 4;
 
 int main(int argc, char * argv[])
 {
     int num_pthreads = 2;
     int policy_input = 3;
-    printf("Usage: a.out [<num_pthreads>] [num_ompthreads] [policy: 1: SPIN(ACTIVE), 2: YIELD, 3: SLEEP(PASSIVE), default %d threads, PASSIVE policy\n", num_ompthreads);
+    printf("Usage: a.out [<num_pthreads>] [num_ompthreads] [policy: 1: SPIN_BUSY, 2: SPIN_PAUSE(ACTIVE), 3: SPIN_YIELD, 4: SUSPEND(PASSIVE), 5: KILL], default %d threads, PASSIVE policy\n", num_ompthreads);
     if (argc >= 2) num_pthreads = (atoi(argv[1]));
     if (argc >= 3) num_ompthreads = (atoi(argv[2]));
     if (argc >= 4) {
         policy_input = atoi(argv[3]);
-        if (policy_input == 1) policy = omp_thread_state_SPIN;
-        if (policy_input == 2) policy = omp_thread_state_YIELD;
-        if (policy_input == 3) policy = omp_thread_state_SLEEP;
+        if (policy_input == 1) policy = OMP_SPIN_BUSY_WAIT;
+        if (policy_input == 2) policy = OMP_SPIN_PAUSE_WAIT;
+        if (policy_input == 3) policy = OMP_SPIN_YIELD_WAIT;
+        if (policy_input == 4) policy = OMP_SUSPEND_WAIT;
+        if (policy_input == 5) policy = OMP_TERMINATE;
     }
     printf("%d pthreads each creates %d OpenMP thread. Test policy: %d\n", num_pthreads, num_ompthreads, policy_input);
     pthread_t pthreads[num_pthreads];

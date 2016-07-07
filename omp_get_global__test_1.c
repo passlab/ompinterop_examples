@@ -22,11 +22,13 @@
 void print_num_threads( ) {
     sleep(1);
     int total_runtime_threads = omp_get_global_num_threads(); 
-    int total_spin_threads = omp_get_num_threads_runtime(omp_thread_state_SPIN);
-    int total_yield_threads = omp_get_num_threads_runtime(omp_thread_state_YIELD);
-    int total_sleep_threads = omp_get_num_threads_runtime(omp_thread_state_SLEEP);
+    int total_spin_busy_threads = omp_get_num_threads_runtime(OMP_SPIN_BUSY_WAIT);
+    int total_spin_pause_threads = omp_get_num_threads_runtime(OMP_SPIN_PAUSE_WAIT);
+    int total_spin_yield_threads = omp_get_num_threads_runtime(OMP_SPIN_YIELD_WAIT);
+    int total_suspend_threads = omp_get_num_threads_runtime(OMP_SUSPEND_WAIT);
 
-    printf("Total threads %d (SPIN: %d, YIELD: %d, SLEEP: %d)\n", total_runtime_threads, total_spin_threads, total_yield_threads, total_sleep_threads);
+    printf("Total threads %d (SPIN_BUSY: %d, SPIN_PAUSE: %d, SPIN_YIELD: %d, SUSPEND: %d)\n", 
+      total_runtime_threads, total_spin_busy_threads, total_spin_pause_threads, total_spin_yield_threads, total_suspend_threads);
 }
 
 int main(int argc, char * argv[]) {

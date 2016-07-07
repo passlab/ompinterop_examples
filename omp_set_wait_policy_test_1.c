@@ -31,10 +31,10 @@ int main(int argc, char * argv[]) {
     omp_set_wait_policy(OMP_PASSIVE_WAIT);
     int a;
 
-    printf("Please input an integer to change from PASSIVE(SLEEP) to ACTIVE(SPIN) wait:");
+    printf("Please input an integer to change from PASSIVE(SUSPEND) to ACTIVE(SPIN_PAUSE) wait:");
     scanf("%d", &a);
     omp_set_wait_policy(OMP_ACTIVE_WAIT);
-    printf("Now thread state: ACTIVE(SPIN) Waiting\n");
+    printf("Now thread state: ACTIVE(SPIN_PAUSE) Waiting\n");
     
     if (omp_get_wait_policy() != OMP_ACTIVE_WAIT) {
         printf("WAIT policy is not correctly set\n");
@@ -45,34 +45,34 @@ int main(int argc, char * argv[]) {
         int tid = omp_get_thread_num();
     }
 
-    printf("Please input an integer to change from ACTIVE(SPIN) to PASSIVE(SLEEP) wait:");
+    printf("Please input an integer to change from ACTIVE(SPIN_PAUSE) to PASSIVE(SUSPEND) wait:");
     scanf("%d", &a);
     omp_set_wait_policy(OMP_PASSIVE_WAIT);
-    printf("Now thread state: PASSIVE(SLEEP) Waiting\n");
+    printf("Now thread state: PASSIVE(SUSPEND) Waiting\n");
 
     if (omp_get_wait_policy() != OMP_PASSIVE_WAIT) {
         printf("WAIT policy is not correctly set\n");
     }
 
-    printf("Please input an integer to change from PASSIVE(SLEEP) to YIELD-SPIN wait:");
+    printf("Please input an integer to change from PASSIVE(SUSPEND) to SPIN_YIELD wait:");
     scanf("%d", &a);
-    omp_set_wait_policy(omp_thread_state_YIELD);
-    printf("Now thread state: YIELD(SPIN) Waiting\n");
+    omp_set_wait_policy(OMP_SPIN_YIELD_WAIT);
+    printf("Now thread state: SPIN_YIELD Waiting\n");
 
-    printf("Please input an integer to change from YIELD-SPIN to ACTIVE(SPIN) wait:");
+    printf("Please input an integer to change from SPIN_YIELD to SPIN_BUSY wait:");
     scanf("%d", &a);
-    omp_set_wait_policy(omp_thread_state_SPIN);
-    printf("Now thread state: ACTIVE(SPIN) Waiting\n");
+    omp_set_wait_policy(OMP_SPIN_BUSY_WAIT);
+    printf("Now thread state: ACTIVE(SPIN_BUSY) Waiting\n");
 
-    printf("Please input an integer to change from ACTIVE(SPIN) to YIELD-SPIN wait:");
+    printf("Please input an integer to change from ACTIVE(SPIN_BUSY) to SPIN_YIELD wait:");
     scanf("%d", &a);
-    omp_set_wait_policy(omp_thread_state_YIELD);
-    printf("Now thread state: YIELD(SPIN) Waiting\n");
+    omp_set_wait_policy(OMP_SPIN_YIELD_WAIT);
+    printf("Now thread state: SPIN_YIELD Waiting\n");
     
-    printf("Please input an integer to change from YIELD-SPIN to PASSIVE(SLEEP) wait:");
+    printf("Please input an integer to change from SPIN_YIELD to PASSIVE(SUSPEND) wait:");
     scanf("%d", &a);
-    omp_set_wait_policy(omp_thread_state_SLEEP);
-    printf("Now thread state: PASSIVE(SLEEP) Waiting\n");
+    omp_set_wait_policy(OMP_SUSPEND_WAIT);
+    printf("Now thread state: PASSIVE(SUSPEND) Waiting\n");
 
 #pragma omp parallel num_threads(nthreads)
     {

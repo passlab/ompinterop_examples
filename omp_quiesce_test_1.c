@@ -30,7 +30,7 @@ int main(int argc, char * argv[]) {
     int a;
     printf("Please input any integer to shutdown the OpenMP runtime.\n");
     scanf("%d", &a);
-    if (omp_quiesce(omp_thread_state_KILL) == 0) {
+    if (omp_quiesce(OMP_TERMINATE) == 0) {
         printf("omp_quiesce() return successfully\n");
     };
     usleep(1000);

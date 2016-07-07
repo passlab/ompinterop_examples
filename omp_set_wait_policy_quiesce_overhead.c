@@ -35,16 +35,17 @@
  */
 int main(int argc, char * argv[]) {
 	int nthreads = 4;
-    int policy = omp_thread_state_SLEEP;
+    int policy = OMP_SUSPEND_WAIT;
     int policy_input = 3;
-    printf("Usage: a.out [<nthreads>] [policy: 1: SPIN(ACTIVE), 2: YIELD, 3: SLEEP(PASSIVE), 4: KILL], default %d threads, PASSIVE policy\n", nthreads);
+    printf("Usage: a.out [<nthreads>] [policy: 1: SPIN_BUSY, 2: SPIN_PAUSE(ACTIVE), 3: SPIN_YIELD, 4: SUSPEND(PASSIVE), 5: KILL], default %d threads, PASSIVE policy\n", nthreads);
 	if (argc >= 2) nthreads = (atoi(argv[1]));
     if (argc >= 3) {
         policy_input = atoi(argv[2]); 
-        if (policy_input == 1) policy = omp_thread_state_SPIN;
-        if (policy_input == 2) policy = omp_thread_state_YIELD;
-        if (policy_input == 3) policy = omp_thread_state_SLEEP;
-        if (policy_input == 4) policy = omp_thread_state_KILL;
+        if (policy_input == 1) policy = OMP_SPIN_BUSY_WAIT;
+        if (policy_input == 2) policy = OMP_SPIN_PAUSE_WAIT;
+        if (policy_input == 3) policy = OMP_SPIN_YIELD_WAIT;
+        if (policy_input == 4) policy = OMP_SUSPEND_WAIT;
+        if (policy_input == 5) policy = OMP_TERMINATE;
     }
     printf("%d thread, policy: %d\n", nthreads, policy_input);
 
@@ -62,7 +63,7 @@ int main(int argc, char * argv[]) {
 		}
 		
 		double temp2  = read_timer_ms();
-		if (policy == omp_thread_state_KILL) omp_quiesce(policy);
+		if (policy == OMP_TERMINATE) omp_quiesce(policy);
 		else omp_set_wait_policy(policy);
 		overhead += read_timer_ms() - temp2;
 		usleep(3000);
