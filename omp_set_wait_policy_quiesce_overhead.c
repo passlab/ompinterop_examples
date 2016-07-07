@@ -29,7 +29,25 @@
     ftime(&tm);
     return (double) tm.time * 1000.0 + (double) tm.millitm;
 }
+#if defined(__i386__)
 
+static __inline__ unsigned long long rdtsc(void)
+{
+    unsigned long long int x;
+    __asm__ volatile (".byte 0x0f, 0x31" : "=A" (x));
+    return x;
+}
+
+#elif defined(__x86_64__)
+
+static __inline__ unsigned long long rdtsc(void)
+{
+    unsigned hi, lo;
+    __asm__ __volatile__ ("rdtsc" : "=a"(lo), "=d"(hi));
+    return ( (unsigned long long)lo)|( ((unsigned long long)hi)<<32 );
+}
+
+#endif
 /**
  * TODO: how to make sure that an empty parallel do not get optimized out by the compiler
  */
@@ -51,45 +69,53 @@ int main(int argc, char * argv[]) {
 
     int i;
     int NUM_ITERATIONS = 1000;
-    double overhead = 0.0;
+    unsigned long long policy_overhead = 0;
     int dummy[nthreads][64];
     omp_set_num_threads(nthreads); /* this call init runtime */
 		#pragma omp parallel
-		{
-		}
-    double cost_all = read_timer_ms();
+	{
+
+        int tid = omp_get_thread_num();
+        dummy[tid][0] = tid;
+	}
+
+    unsigned long long parallel_startup_cost_with_policy = 0;
     for (i=0; i<NUM_ITERATIONS; i++) {
+        unsigned long long temp = rdtsc();
     	omp_set_num_threads(nthreads); /* this call init runtime */
-		#pragma omp parallel
-		{
-		//	int tid = omp_get_thread_num();
-		//	dummy[tid][0] = i;
-		}
-		
-		double temp2  = read_timer_ms();
+#pragma omp parallel shared(parallel_startup_cost_with_policy, temp)
+        {
+            int tid = omp_get_thread_num();
+            if (tid == 0) parallel_startup_cost_with_policy += rdtsc() - temp;
+            //	dummy[tid][0] = i;
+        }
+
+		unsigned long long temp2  = rdtsc();
 		if (policy == OMP_TERMINATE) omp_quiesce(policy);
 		else omp_set_wait_policy(policy);
-		overhead += read_timer_ms() - temp2;
-		//usleep(3000);
+		policy_overhead += rdtsc() - temp2;
+		usleep(3000);
     }
-    cost_all = read_timer_ms() - cost_all;
 
     omp_set_num_threads(nthreads); /* this call init runtime */
-    omp_set_wait_policy(OMP_ACTIVE_WAIT);
+    omp_set_wait_policy(OMP_SPIN_BUSY_WAIT);
  	// this is for not quiesce
-    double parallel_overhead = read_timer_ms();
+    unsigned long long parallel_startup_cost = 0;
     for (i=0; i<NUM_ITERATIONS; i++) {
+        unsigned long long temp = rdtsc();
     	omp_set_num_threads(nthreads); /* this call init runtime */
-		#pragma omp parallel
+		#pragma omp parallel shared(parallel_startup_cost, temp)
 		{
-		//	int tid = omp_get_thread_num();
+		    int tid = omp_get_thread_num();
+            if (tid == 0) parallel_startup_cost += rdtsc() - temp;
 		//	dummy[tid][0] = i;
 		}
-		//usleep(3000);
+		usleep(3000);
     }
-    parallel_overhead = read_timer_ms() - parallel_overhead;
-    printf("set_wait_policy/quiesce overhead(us): %f, %f%% of parallel startup cost\n", 1000*overhead/NUM_ITERATIONS, 100*overhead/parallel_overhead);
-    printf("parallel startup overhead because of the policy(us): %f\n", 1000*(cost_all - parallel_overhead - overhead)/NUM_ITERATIONS);
+    unsigned long long parallel_overhead_with_policy = parallel_startup_cost_with_policy - parallel_startup_cost;
+    double cps = 1.0/2301.0; /* in us, on fornax, frequency is 2301GHz */
+    printf("set_wait_policy/quiesce overhead(cycles): %llu, %.2f%% of parallel startup cost with SPIN_BUSY policy\n", 1000*policy_overhead/NUM_ITERATIONS, 100.0*(double)policy_overhead/(double)parallel_startup_cost);
+    printf("parallel startup overhead because of the policy(cycles): %llu, %.2f%% of parallel startup cost with SPIN_BUSY policy\n", 1000*parallel_overhead_with_policy/NUM_ITERATIONS, 100.0*(double)parallel_overhead_with_policy/(double)parallel_startup_cost);
 
 	// while(1);
      return 0;
