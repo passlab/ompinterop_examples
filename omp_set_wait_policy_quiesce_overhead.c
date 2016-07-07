@@ -53,6 +53,10 @@ int main(int argc, char * argv[]) {
     int NUM_ITERATIONS = 1000;
     double overhead = 0.0;
     int dummy[nthreads][64];
+    omp_set_num_threads(nthreads); /* this call init runtime */
+		#pragma omp parallel
+		{
+		}
     double cost_all = read_timer_ms();
     for (i=0; i<NUM_ITERATIONS; i++) {
     	omp_set_num_threads(nthreads); /* this call init runtime */
@@ -66,10 +70,11 @@ int main(int argc, char * argv[]) {
 		if (policy == OMP_TERMINATE) omp_quiesce(policy);
 		else omp_set_wait_policy(policy);
 		overhead += read_timer_ms() - temp2;
-		usleep(3000);
+		//usleep(3000);
     }
     cost_all = read_timer_ms() - cost_all;
 
+    omp_set_num_threads(nthreads); /* this call init runtime */
     omp_set_wait_policy(OMP_ACTIVE_WAIT);
  	// this is for not quiesce
     double parallel_overhead = read_timer_ms();
@@ -80,10 +85,10 @@ int main(int argc, char * argv[]) {
 		//	int tid = omp_get_thread_num();
 		//	dummy[tid][0] = i;
 		}
-		usleep(3000);
+		//usleep(3000);
     }
     parallel_overhead = read_timer_ms() - parallel_overhead;
-    printf("set_wait_policy/quiesce overhead(us)      : %f\n", 1000*overhead/NUM_ITERATIONS);
+    printf("set_wait_policy/quiesce overhead(us): %f, %f%% of parallel startup cost\n", 1000*overhead/NUM_ITERATIONS, 100*overhead/parallel_overhead);
     printf("parallel startup overhead because of the policy(us): %f\n", 1000*(cost_all - parallel_overhead - overhead)/NUM_ITERATIONS);
 
 	// while(1);
