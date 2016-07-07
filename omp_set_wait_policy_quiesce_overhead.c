@@ -10,7 +10,7 @@
 
 /**
  * This function measure the overhead of both set_wait_policy and quiesce since quiesce takes all the arguments
- * required for set_wait_policy plus the KILL policy which shutdown the runtime
+ * required for set_wait_policy plus the TERMINATE policy which shutdown the runtime
  *
  * Important: make sure you use omp_set_num_threads API before parallel to set the number of threads for
  * execution. The use of num_threads clause is not safe due to the way compiler generate the code and the way how
@@ -37,7 +37,7 @@ int main(int argc, char * argv[]) {
 	int nthreads = 4;
     int policy = OMP_SUSPEND_WAIT;
     int policy_input = 3;
-    printf("Usage: a.out [<nthreads>] [policy: 1: SPIN_BUSY, 2: SPIN_PAUSE(ACTIVE), 3: SPIN_YIELD, 4: SUSPEND(PASSIVE), 5: KILL], default %d threads, PASSIVE policy\n", nthreads);
+    printf("Usage: a.out [<nthreads>] [policy: 1: SPIN_BUSY, 2: SPIN_PAUSE(ACTIVE), 3: SPIN_YIELD, 4: SUSPEND(PASSIVE), 5: TERMINATE], default %d threads, PASSIVE policy\n", nthreads);
 	if (argc >= 2) nthreads = (atoi(argv[1]));
     if (argc >= 3) {
         policy_input = atoi(argv[2]); 

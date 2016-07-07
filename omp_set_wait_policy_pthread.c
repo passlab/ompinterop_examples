@@ -50,7 +50,7 @@ int main(int argc, char * argv[])
 {
     int num_pthreads = 2;
     int policy_input = 3;
-    printf("Usage: a.out [<num_pthreads>] [num_ompthreads] [policy: 1: SPIN_BUSY, 2: SPIN_PAUSE(ACTIVE), 3: SPIN_YIELD, 4: SUSPEND(PASSIVE), 5: KILL], default %d threads, PASSIVE policy\n", num_ompthreads);
+    printf("Usage: a.out [<num_pthreads>] [num_ompthreads] [policy: 1: SPIN_BUSY, 2: SPIN_PAUSE(ACTIVE), 3: SPIN_YIELD, 4: SUSPEND(PASSIVE), 5: TERMINATE], default %d threads, PASSIVE policy\n", num_ompthreads);
     if (argc >= 2) num_pthreads = (atoi(argv[1]));
     if (argc >= 3) num_ompthreads = (atoi(argv[2]));
     if (argc >= 4) {
