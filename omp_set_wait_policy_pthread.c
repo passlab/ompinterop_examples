@@ -45,6 +45,7 @@ double read_timer_ms() {
 int togo = 0;
 int policy = OMP_SUSPEND_WAIT;
 int num_ompthreads = 4;
+#define NUM_ITERATIONS 1000
 
 int main(int argc, char * argv[])
 {
@@ -61,7 +62,7 @@ int main(int argc, char * argv[])
         if (policy_input == 4) policy = OMP_SUSPEND_WAIT;
         if (policy_input == 5) policy = OMP_TERMINATE;
     }
-    printf("%d pthreads each creates %d OpenMP thread. Test policy: %d\n", num_pthreads, num_ompthreads, policy_input);
+    printf("%d pthreads each creates %d OpenMP thread. Test policy: %d, ", num_pthreads, num_ompthreads, policy_input);
     pthread_t pthreads[num_pthreads];
     pthread_attr_t pthread_attr;
 
@@ -96,12 +97,12 @@ int main(int argc, char * argv[])
     }
 
     elapsed = read_timer_ms() - elapsed;
-    printf("Elapsed(ms): %f\n", elapsed);
+    printf("Elapsed(ms): %f\n", elapsed/NUM_ITERATIONS);
+    printf("%f,", elapsed/NUM_ITERATIONS);
 
     return 0;
 }
 
-#define NUM_ITERATIONS 1000
 void *omp_parallel_foo(void *ptr )
 {
     int user_thread_id = (int) ptr;
@@ -113,11 +114,10 @@ void *omp_parallel_foo(void *ptr )
         omp_set_num_threads(num_ompthreads);
 #pragma omp parallel
         {
-            /* busy waiting, the whole parallel region should takes 1s */
+            /* busy waiting, the whole region takes 3000us */
             busy_waiting(3000);
         }
         omp_set_wait_policy(policy); /* or active */
-    //    usleep(3000); /* usleep so the policy applied */
     }
     return NULL;
 }
